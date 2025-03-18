@@ -38,14 +38,7 @@
             background-color: #f8d7da;
             color: #721c24;
         }
-        .tip {
-            margin-top: 30px;
-            padding: 10px;
-            background-color: #fff9c4;
-            border-radius: 5px;
-            font-size: 14px;
-            display: none; /* 默认隐藏 */
-        }
+        
     </style>
 </head>
 <body>
@@ -70,14 +63,7 @@
     
     <div id="result" class="result"></div>
 
-    <!-- 添加提示文字 -->
-    <div class="tip">
-        检测到iPhone用户，莫不是姓陈的😳😳，<span style="color:red;font-size:20px;font-weight:bold;">注意这个链接不要发给别人，因为发给你后注意到这个地址会暴露我一些隐私。。。。</span>但是不知道这个链接你会不会留着用，所以就先留着了，并没有销毁。
-        <br />
-        <br />
-        如果要分享给别人的话，可以发送这个链接: <a href="https://gitswno.github.io/web/">https://gitswno.github.io/web/</a>
-    </div>
-
+   
     <script>
         // 填充年份下拉菜单
         const yearSelect = document.getElementById('year');
@@ -185,13 +171,6 @@
         window.onload = function() {
             calculateShift();
             
-            // 检测是否是iPhone
-            const isIphone = /iPhone/.test(navigator.userAgent);
-            
-            // 如果是iPhone，显示提示文字
-            if (isIphone) {
-                document.querySelector('.tip').style.display = 'block';
-            }
         };
     </script>
 </body>
