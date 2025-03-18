@@ -1,174 +1,198 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>三班倒班次查询</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 20px;
-      text-align: center;
-    }
-    h1 {
-      color: #333;
-    }
-    .date-selector {
-      margin: 20px 0;
-    }
-    select {
-      padding: 8px;
-      margin: 5px;
-      font-size: 16px;
-    }
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 5px;
-      background-color: #f0f0f0;
-      font-size: 18px;
-    }
-    .success {
-      background-color: #d4edda;
-      color: #155724;
-    }
-    .error {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三班倒班次查询</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .date-selector {
+            margin: 20px 0;
+        }
+        select {
+            padding: 8px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            font-size: 18px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .tip {
+            margin-top: 30px;
+            padding: 10px;
+            background-color: #fff9c4;
+            border-radius: 5px;
+            font-size: 14px;
+            display: none; /* 默认隐藏 */
+        }
+    </style>
 </head>
 <body>
-  <h1>三班倒班次查询</h1>
-  
-  <div class="date-selector">
-    <label for="year">年份:</label>
-    <select id="year"></select>
+    <h1>三班倒班次查询</h1>
     
-    <label for="month">月份:</label>
-    <select id="month"></select>
+    <div class="date-selector">
+        <label for="year">年份:</label>
+        <select id="year"></select>
+        
+        <label for="month">月份:</label>
+        <select id="month"></select>
+        
+        <label for="day">日期:</label>
+        <select id="day"></select>
+        
+        <label for="shift-time">时间段:</label>
+        <select id="shift-time">
+            <option value="day">白天</option>
+            <option value="night">晚上</option>
+        </select>
+    </div>
     
-    <label for="day">日期:</label>
-    <select id="day"></select>
-    
-    <label for="shift-time">时间段:</label>
-    <select id="shift-time">
-      <option value="day">白天</option>
-      <option value="night">晚上</option>
-    </select>
-  </div>
-  
-  <div id="result" class="result"></div>
+    <div id="result" class="result"></div>
 
-  <script>
-    // 填充年份下拉菜单
-    const yearSelect = document.getElementById('year');
-    const currentYear = new Date().getFullYear();
-    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
-      const option = document.createElement('option');
-      option.value = year;
-      option.textContent = year;
-      yearSelect.appendChild(option);
-    }
-    
-    // 设置默认年份为当前年
-    yearSelect.value = currentYear;
-    
-    // 填充月份下拉菜单
-    const monthSelect = document.getElementById('month');
-    for (let month = 1; month <= 12; month++) {
-      const option = document.createElement('option');
-      option.value = month;
-      option.textContent = month;
-      monthSelect.appendChild(option);
-    }
-    
-    // 设置默认月份为当前月
-    monthSelect.value = new Date().getMonth() + 1;
-    
-    // 根据选择的年份和月份填充日期下拉菜单
-    function populateDays() {
-      const daySelect = document.getElementById('day');
-      daySelect.innerHTML = '';
-      
-      const year = parseInt(yearSelect.value);
-      const month = parseInt(monthSelect.value) - 1; // JavaScript月份从0开始
-      
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      
-      for (let day = 1; day <= daysInMonth; day++) {
-        const option = document.createElement('option');
-        option.value = day;
-        option.textContent = day;
-        daySelect.appendChild(option);
-      }
-      
-      // 设置默认日期为当前日期
-      const currentDate = new Date();
-      if (currentDate.getFullYear() === year && currentDate.getMonth() === month) {
-        daySelect.value = currentDate.getDate();
-      } else {
-        daySelect.value = 1;
-      }
-    }
-    
-    // 当年份或月份改变时，更新日期下拉菜单
-    document.getElementById('year').addEventListener('change', populateDays);
-    document.getElementById('month').addEventListener('change', populateDays);
-    
-    // 初始化日期下拉菜单
-    populateDays();
-    
-    // 计算班次
-    function calculateShift() {
-      const year = parseInt(document.getElementById('year').value);
-      const month = parseInt(document.getElementById('month').value);
-      const day = parseInt(document.getElementById('day').value);
-      const shiftTime = document.getElementById('shift-time').value;
-      
-      // 创建日期对象
-      const selectedDate = new Date(year, month - 1, day);
-      
-      // 检查日期是否有效
-      if (selectedDate.getFullYear() !== year || selectedDate.getMonth() !== month - 1 || selectedDate.getDate() !== day) {
-        document.getElementById('result').innerHTML = '请选择有效的日期';
-        document.getElementById('result').className = 'result error';
-        return;
-      }
-      
-      // 设置新的基准日期为2025年3月18日
-      const baseDate = new Date(2025, 2, 18); // 月份从0开始，3月是2
-      const timeDiff = selectedDate - baseDate;
-      const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
-      
-      // 计算班次
-      let shiftNumber;
-      if (shiftTime === 'day') {
-        // 白天班次
-        shiftNumber = (((dayDiff * 2) % 3) + 3) % 3 + 1;
-      } else {
-        // 晚上班次
-        shiftNumber = (((dayDiff * 2 + 1) % 3) + 3) % 3 + 1;
-      }
-      
-      // 显示结果
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = `您选择的日期是 ${year}年${month}月${day}日 ${shiftTime === 'day' ? '白天' : '晚上'}, 对应的班次是 ${shiftNumber}班`;
-      resultDiv.className = 'result success';
-    }
-    
-    // 为所有选择框添加变化事件监听器
-    document.getElementById('year').addEventListener('change', calculateShift);
-    document.getElementById('month').addEventListener('change', calculateShift);
-    document.getElementById('day').addEventListener('change', calculateShift);
-    document.getElementById('shift-time').addEventListener('change', calculateShift);
-    
-    // 页面加载完成后自动计算当天的班次
-    window.onload = function() {
-      calculateShift();
-    };
-  </script>
+    <!-- 添加提示文字 -->
+    <div class="tip">
+        检测到iPhone用户，莫不是姓陈的😳😳，<span style="color:red;font-size:20px;font-weight:bold;">注意这个链接不要发给别人，因为发给你后注意到这个地址会暴露我一些隐私。。。。</span>但是不知道这个链接你会不会留着用，所以就先留着了，并没有销毁。
+        <br />
+        <br />
+        如果要分享给别人的话，可以发送这个链接: <a href="https://gitswno.github.io/web/">https://gitswno.github.io/web/</a>
+    </div>
+
+    <script>
+        // 填充年份下拉菜单
+        const yearSelect = document.getElementById('year');
+        const currentYear = new Date().getFullYear();
+        for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+        
+        // 设置默认年份为当前年
+        yearSelect.value = currentYear;
+        
+        // 填充月份下拉菜单
+        const monthSelect = document.getElementById('month');
+        for (let month = 1; month <= 12; month++) {
+            const option = document.createElement('option');
+            option.value = month;
+            option.textContent = month;
+            monthSelect.appendChild(option);
+        }
+        
+        // 设置默认月份为当前月
+        monthSelect.value = new Date().getMonth() + 1;
+        
+        // 根据选择的年份和月份填充日期下拉菜单
+        function populateDays() {
+            const daySelect = document.getElementById('day');
+            daySelect.innerHTML = '';
+            
+            const year = parseInt(yearSelect.value);
+            const month = parseInt(monthSelect.value) - 1; // JavaScript月份从0开始
+            
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const option = document.createElement('option');
+                option.value = day;
+                option.textContent = day;
+                daySelect.appendChild(option);
+            }
+            
+            // 设置默认日期为当前日期
+            const currentDate = new Date();
+            if (currentDate.getFullYear() === year && currentDate.getMonth() === month) {
+                daySelect.value = currentDate.getDate();
+            } else {
+                daySelect.value = 1;
+            }
+        }
+        
+        // 当年份或月份改变时，更新日期下拉菜单
+        document.getElementById('year').addEventListener('change', populateDays);
+        document.getElementById('month').addEventListener('change', populateDays);
+        
+        // 初始化日期下拉菜单
+        populateDays();
+        
+        // 计算班次
+        function calculateShift() {
+            const year = parseInt(document.getElementById('year').value);
+            const month = parseInt(document.getElementById('month').value);
+            const day = parseInt(document.getElementById('day').value);
+            const shiftTime = document.getElementById('shift-time').value;
+            
+            // 创建日期对象
+            const selectedDate = new Date(year, month - 1, day);
+            
+            // 检查日期是否有效
+            if (selectedDate.getFullYear() !== year || selectedDate.getMonth() !== month - 1 || selectedDate.getDate() !== day) {
+                document.getElementById('result').innerHTML = '请选择有效的日期';
+                document.getElementById('result').className = 'result error';
+                return;
+            }
+            
+            // 设置新的基准日期为2025年3月18日
+            const baseDate = new Date(2025, 2, 18); // 月份从0开始，3月是2
+            const timeDiff = selectedDate - baseDate;
+            const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+            
+            // 计算班次
+            let shiftNumber;
+            if (shiftTime === 'day') {
+                // 白天班次
+                shiftNumber = (((dayDiff * 2) % 3) + 3) % 3 + 1;
+            } else {
+                // 晚上班次
+                shiftNumber = (((dayDiff * 2 + 1) % 3) + 3) % 3 + 1;
+            }
+            
+            // 显示结果
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `您选择的日期是 ${year}年${month}月${day}日 ${shiftTime === 'day' ? '白天' : '晚上'}, 对应的班次是 ${shiftNumber}班`;
+            resultDiv.className = 'result success';
+        }
+        
+        // 为所有选择框添加变化事件监听器
+        document.getElementById('year').addEventListener('change', calculateShift);
+        document.getElementById('month').addEventListener('change', calculateShift);
+        document.getElementById('day').addEventListener('change', calculateShift);
+        document.getElementById('shift-time').addEventListener('change', calculateShift);
+        
+        // 页面加载完成后自动计算当天的班次
+        window.onload = function() {
+            calculateShift();
+            
+            // 检测是否是iPhone
+            const isIphone = /iPhone/.test(navigator.userAgent);
+            
+            // 如果是iPhone，显示提示文字
+            if (isIphone) {
+                document.querySelector('.tip').style.display = 'block';
+            }
+        };
+    </script>
 </body>
 </html>
